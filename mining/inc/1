@@ -1,0 +1,66 @@
+SELECT
+	coins.id,
+    coins.coin_name,
+    coins.pool_name,
+    coins.symbol,
+    coins.algo,
+    coins.date_add,
+    coin_prices.reward_per_b
+FROM
+ 	coins,
+    coin_prices
+LEFT JOIN
+	(SELECT AVG(hashrate) AS hashrateAvg FROM pools_stat WHERE coins.symbol = pools_stat.symbol AND pools_stat.pool = coins.pool_name AND dateadd >= now() - interval 1 day) AS HashAvg ON coins.symbol = pools_stat.symbol AND pools_stat.pool = coins.pool_name
+WHERE
+coin_prices.symbol = coins.symbol
+AND
+coin_prices.reward_per_b IS NOT NULL
+
+
+
+SELECT
+	coin_prices.price_btc,
+    coin_prices.price_usd,
+    coin_prices.reward_per_b,
+	pools_stat.symbol,
+    pools_stat.pool,
+    AVG(hashrate) AS hashrateAvg,
+    coins.algo,
+    coins.date_add
+FROM
+	pools_stat,
+    coin_prices,
+    coins
+WHERE
+	pools_stat.symbol LIKE coin_prices.symbol
+    AND
+    pools_stat.symbol LIKE coins.symbol
+    AND
+    coin_prices.reward_per_b IS NOT NULL
+ 	AND
+ 	dateadd >= now() - interval 1 day
+GROUP by pools_stat.pool, pools_stat.symbol
+
+
+SELECT
+	coin_prices.price_btc,
+    coin_prices.price_usd,
+    coin_prices.reward_per_b,
+	pools_stat.symbol,
+    pools_stat.pool,
+    AVG(hashrate) AS hashrateAvg,
+    coins.algo,
+    coins.date_add
+FROM
+	pools_stat,
+    coin_prices,
+    coins
+WHERE
+	pools_stat.symbol LIKE coin_prices.symbol
+    AND
+    pools_stat.symbol LIKE coins.symbol
+    AND
+    coin_prices.reward_per_b IS NOT NULL
+ 	AND
+ 	dateadd >= now() - interval 1 day
+GROUP by pools_stat.pool, pools_stat.symbol
